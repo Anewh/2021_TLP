@@ -65,8 +65,11 @@ public class PythonLexicalParser {
         for(String p : pythonCode){
             char[] charArray = p.toCharArray();
             for(char sm : charArray){
-
                 //добавить проверку на строковый литерал
+                //парсить оператор полностью
+                //распарсить литералы
+                //проверка на существование спарсенного символа в питоне
+
                 if(Character.isLetter(sm)){
                     buffer.append(sm);
                     continue;
@@ -83,6 +86,9 @@ public class PythonLexicalParser {
                 if(OPERATORS.contains(sm)){
                     findTokenKeyword(buffer, sm);
                     findTokenBooleanLiteral(buffer, sm);
+
+                    char nextShit;
+                    char preShit;
 
                     tokens.setToken("OPERATOR");
                     tokens.setWord(Character.toString(sm));
