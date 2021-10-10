@@ -11,12 +11,12 @@ public class PythonLexicalParser {
             Set.of("True", "False", "None");
 
     private static final Set<String> OPERATORS =
-            Set.of("+", "-", "*", "**", "/", "//", "%", "@", "<<", ">>", "&", "|",
+            Set.of("+", "-", "*", "**", "/", "//", "%", "<<", ">>", "&", "|",
                     "^", "~", ":=", "<", ">", "<=", ">=", "==", "!=");
 
     private static final Set<String> DELIMITERS =
-            Set.of("(", ")", "[", "]", "{", "}", ",", ":", ".", ";", "@", "=", "->","-=",
-                    "*=", "/=", "//=", "%=", "@=", "&=", "|=", "^=", ">>=", "<<=", "**=");
+            Set.of("(", ")", "[", "]", "{", "}", ",", ":", ".", ";", "=", "->","-=",
+                    "*=", "/=", "//=", "%=", "&=", "|=", "^=", ">>=", "<<=", "**=");
 
     private static final Set<String> UNRECOGNIZED = Set.of("$", "?", "`");
 
@@ -43,48 +43,32 @@ public class PythonLexicalParser {
         return result;
     }
 
-    private boolean findTokenKeyword(StringBuilder buffer){
-        Token token = new Token();
-        if(KEYWORDS.contains(buffer.toString())){
-            token.setToken("KEYWORD");
-            token.setWord(buffer.toString());
-            this.tokens.add(token);
-
-            buffer.setLength(0);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean findTokenBooleanLiteral(StringBuilder buffer){
-        Token token = new Token();
-        if(BOOLEAN_LITERALS.contains(buffer.toString())){
-            token.setToken("BOOLEAN_LITERAL");
-            token.setWord(buffer.toString());
-            this.tokens.add(token);
-
-            buffer.setLength(0);
-            return true;
-        }
-        return false;
-    }
-
-    private void ohIdHereWeGoAgain(StringBuilder buffer){
-        if(buffer.toString() == " " || buffer.toString() == "" || buffer.length() == 0) return;
-        Token token = new Token();
-        token.setToken("ID");
-        token.setWord(buffer.toString());
-        this.tokens.add(token);
-        buffer.setLength(0);
-    }
-
-    private void addLiteral(StringBuilder literalBuffer, boolean flag, String currentToken){
+    private void addToken(StringBuilder literalBuffer, String currentToken){
         Token token = new Token();
         token.setToken(currentToken);
         token.setWord(literalBuffer.toString());
         this.tokens.add(token);
-        flag = false;
         literalBuffer.setLength(0);
+    }
+
+    private Token parseSymbolToken(char[] chars, int i){
+        int start = i;
+        String buffer = "";
+        Token token = new Token();
+        for (; i < chars.length; i++) {
+            final String s = String.valueOf(chars, start, i-start+1);
+            if (DELIMITERS.contains(s)) {
+                token.setWord(s);
+                token.setToken("DELIMITER");
+            }
+            else if (OPERATORS.contains(s)) {
+                token.setWord(s);
+                token.setToken("OPERATOR");
+            }
+            else
+                return token;
+        }
+        return token;
     }
 
     public List<Token> lexicalAnalyzer(List<String> resource){
@@ -102,78 +86,103 @@ public class PythonLexicalParser {
             canBeNumberLiteral = false;
             char[] charArray = p.toCharArray();
 
-            for(int i = 0;i<charArray.length; i++){
-
-                if(charArray[i] == '\'' || charArray[i] == '"'){
-                    if(STRING_PREFIXES.contains(buffer.toString())) addLiteral(buffer, true , "STRING_PREFIXES");
+            for(int i = 0; i < charArray.length; i++){
+                //строковый литерал
+                char c = charArray[i];
+                if(c == '\'' || c == '"'){
+                    if(STRING_PREFIXES.contains(buffer.toString())) addToken(buffer, "STRING_PREFIXES");
                     if(!isStringLiteral){
-                        escapedQuote = charArray[i];
+                        escapedQuote = c;
                         isStringLiteral = true;
-                        literalBuffer.append(charArray[i]);
+                        literalBuffer.append(c);
                     }
-                    else if(escapedQuote == charArray[i]){
+                    else if(escapedQuote == c){
                         isStringLiteral = false;
-                        literalBuffer.append(charArray[i]);
-                        addLiteral(literalBuffer, isStringLiteral, "STRING_LITERAL");
+                        literalBuffer.append(c);
+                        addToken(literalBuffer, "STRING_LITERAL");
+                        isStringLiteral = false;
                     }
                     continue;
                 }
 
                 if(isStringLiteral){
-                    literalBuffer.append(charArray[i]);
+                    literalBuffer.append(c);
                     continue;
                 }
 
-                if(Character.isLetter(charArray[i])){
-                    buffer.append(charArray[i]);
+                //любая буквенная лексема
+                if(Character.isLetter(c)){
+                    buffer.append(c);
                     continue;
                 }
 
-                if((!Character.isDigit(charArray[i]) && charArray[i]!='.') && canBeNumberLiteral && literalBuffer.length() != 0) addLiteral(literalBuffer, canBeNumberLiteral, "NUMBER_LITERAL");
-
-                if(Character.isDigit(charArray[i]) || (literalBuffer.length() != 0 && charArray[i] == '.') || charArray[i] == '-'){
+                //численный литерал
+                if((!Character.isDigit(c) && c !='.') && canBeNumberLiteral && literalBuffer.length() != 0){
+                    addToken(literalBuffer, "NUMBER_LITERAL");
+                    canBeNumberLiteral = false;
+                }
+                if(Character.isDigit(c) || (literalBuffer.length() != 0 && c == '.') || c == '-'){
                     canBeNumberLiteral = true;
-                    literalBuffer.append(charArray[i]);
+                    literalBuffer.append(c);
                 }
 
-                if(DELIMITERS.contains(Character.toString(charArray[i])) && !canBeNumberLiteral){
-                    findTokenKeyword(buffer);
-                    findTokenBooleanLiteral(buffer);
+                //разделители
+                if(DELIMITERS.contains(Character.toString(c)) && !canBeNumberLiteral){
+                    if(KEYWORDS.contains(buffer.toString())) addToken(buffer, "KEYWORD");
+                    if(BOOLEAN_LITERALS.contains(buffer.toString())) addToken(buffer, "BOOLEAN_LITERALS");
 
                     Token token = new Token();
                     token.setToken("DELIMITER");
-                    token.setWord(Character.toString(charArray[i]));
+                    token.setWord(Character.toString(c));
 
-                    ohIdHereWeGoAgain(buffer);
-                    //findHardLiteral(p.toCharArray());
+                    if(!(buffer.toString().equals(" ")) && !(buffer.length() == 0)) addToken(buffer, "ID");
                     this.tokens.add(token);
                 }
 
-                if(OPERATORS.contains(Character.toString(charArray[i]))){
-                    findTokenKeyword(buffer);
-                    findTokenBooleanLiteral(buffer);
+                //операторы
+                if(OPERATORS.contains(Character.toString(c))){
+                    if(KEYWORDS.contains(buffer.toString())) addToken(buffer, "KEYWORD");
+                    if(BOOLEAN_LITERALS.contains(buffer.toString())) addToken(buffer,  "BOOLEAN_LITERALS");
 
                     Token token = new Token();
                     token.setToken("OPERATOR");
-                    token.setWord(Character.toString(charArray[i]));
+                    token.setWord(Character.toString(c));
 
-                    ohIdHereWeGoAgain(buffer);
+                    if(!(buffer.toString().equals(" ")) && !(buffer.length() == 0)) addToken(buffer, "ID");
                     this.tokens.add(token);
                 }
 
-                if(UNRECOGNIZED.contains(Character.toString(charArray[i]))){
+                //неведомая хреновина
+                if(UNRECOGNIZED.contains(Character.toString(c))){
                     Token token = new Token();
                     token.setToken("UNRECOGNIZED");
-                    token.setWord(Character.toString(charArray[i]));
+                    token.setWord(Character.toString(c));
                     this.tokens.add(token);
                 }
             }
-            if(isStringLiteral){literalBuffer.append(" "); continue;}
-            if(findTokenBooleanLiteral(buffer) || findTokenKeyword(buffer)) isFounded = true;
-            if(!isFounded){ ohIdHereWeGoAgain(buffer);}
+
+            //если строковый литерал разбился на несколько строк
+            if(isStringLiteral){
+                literalBuffer.append(" ");
+                continue;
+            }
+
+            //если буквенный литерал это последнее что написано в строке
+            if(KEYWORDS.contains(buffer.toString())){
+                addToken(buffer, "KEYWORD");
+                isFounded = true;
+            }
+            else if(BOOLEAN_LITERALS.contains(buffer.toString())){
+                addToken(buffer, "BOOLEAN_LITERALS");
+                isFounded = true;
+            }
+            else if(!(buffer.toString().equals(" ")) && !(buffer.toString().equals("")) && !(buffer.length() == 0)) addToken(buffer, "ID");
             buffer.setLength(0);
 
-            if(literalBuffer.length()!=0) if(canBeNumberLiteral)addLiteral(literalBuffer, canBeNumberLiteral, "NUMBER_LITERAL");
+            //если строковый литерал вынесен в отдельную строку
+            if(literalBuffer.length()!=0){
+                addToken(literalBuffer, "NUMBER_LITERAL");
+            }
             literalBuffer.setLength(0);
         }
         return tokens;
