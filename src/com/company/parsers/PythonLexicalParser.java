@@ -27,14 +27,12 @@ public class PythonLexicalParser {
 
     public static List<String> deleteComments(List<String> pythonCode){
         List<String> result = new ArrayList<>();
-
         for(String p : pythonCode){
             if(p.indexOf('#')!=-1){
                 StringBuilder stringBuilder = new StringBuilder(p);
-                String substring = " ";
                 int index = p.indexOf('#');
                 while(index != stringBuilder.length() - p.indexOf('#')){
-                    stringBuilder.setCharAt(index++, ' ');
+                    stringBuilder.append(" ");
                 }
                 p = stringBuilder.toString();
             }
@@ -53,8 +51,8 @@ public class PythonLexicalParser {
 
     private Token parseSymbolToken(char[] chars, int i){
         int start = i;
-        String buffer = "";
         Token token = new Token();
+        token.setWord("");
         for (; i < chars.length; i++) {
             final String s = String.valueOf(chars, start, i-start+1);
             if (DELIMITERS.contains(s)) {
@@ -126,33 +124,18 @@ public class PythonLexicalParser {
                     literalBuffer.append(c);
                 }
 
-                //разделители
-                if(DELIMITERS.contains(Character.toString(c)) && !canBeNumberLiteral){
+                //разделители и операторы
+                if((DELIMITERS.contains(Character.toString(c)) && !canBeNumberLiteral) || OPERATORS.contains(Character.toString(c))){
                     if(KEYWORDS.contains(buffer.toString())) addToken(buffer, "KEYWORD");
                     if(BOOLEAN_LITERALS.contains(buffer.toString())) addToken(buffer, "BOOLEAN_LITERALS");
 
-                    Token token = new Token();
-                    token.setToken("DELIMITER");
-                    token.setWord(Character.toString(c));
-
                     if(!(buffer.toString().equals(" ")) && !(buffer.length() == 0)) addToken(buffer, "ID");
-                    this.tokens.add(token);
+                    Token token = parseSymbolToken(charArray, i);
+                    if(!token.getWord().isEmpty()) this.tokens.add(token);
+                    i+=token.getWord().length();
                 }
 
-                //операторы
-                if(OPERATORS.contains(Character.toString(c))){
-                    if(KEYWORDS.contains(buffer.toString())) addToken(buffer, "KEYWORD");
-                    if(BOOLEAN_LITERALS.contains(buffer.toString())) addToken(buffer,  "BOOLEAN_LITERALS");
-
-                    Token token = new Token();
-                    token.setToken("OPERATOR");
-                    token.setWord(Character.toString(c));
-
-                    if(!(buffer.toString().equals(" ")) && !(buffer.length() == 0)) addToken(buffer, "ID");
-                    this.tokens.add(token);
-                }
-
-                //неведомая хреновина
+                //неведомый в питоне зверь
                 if(UNRECOGNIZED.contains(Character.toString(c))){
                     Token token = new Token();
                     token.setToken("UNRECOGNIZED");
