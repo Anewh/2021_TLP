@@ -25,14 +25,14 @@ public class PythonLexicalParser {
 
     public static List<Token> tokens = new LinkedList<Token>();
 
-    public static List<String> deleteComments(List<String> pythonCode){
+    public List<String> deleteComments(List<String> pythonCode){
         List<String> result = new ArrayList<>();
         for(String p : pythonCode){
             if(p.indexOf('#')!=-1){
                 StringBuilder stringBuilder = new StringBuilder(p);
                 int index = p.indexOf('#');
-                while(index != stringBuilder.length() - p.indexOf('#')){
-                    stringBuilder.append(" ");
+                while(index != stringBuilder.length()){
+                    stringBuilder.setCharAt(index++, ' ');
                 }
                 p = stringBuilder.toString();
             }
@@ -131,8 +131,9 @@ public class PythonLexicalParser {
 
                     if(!(buffer.toString().equals(" ")) && !(buffer.length() == 0)) addToken(buffer, "ID");
                     Token token = parseSymbolToken(charArray, i);
-                    if(!token.getWord().isEmpty()) this.tokens.add(token);
-                    i+=token.getWord().length();
+                    if(!token.getWord().isEmpty()){ this.tokens.add(token);
+                        i+=token.getWord().length()-1;}
+                    continue;
                 }
 
                 //неведомый в питоне зверь

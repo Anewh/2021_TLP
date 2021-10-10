@@ -17,7 +17,7 @@ public class Main {
         PythonLexicalParser parser = new PythonLexicalParser();
         pythonCode = parser.deleteComments(pythonCode);
         for(Token t : parser.lexicalAnalyzer(pythonCode)){
-            System.out.println(t.getToken() + " " + t.getWord() + " ");
+            System.out.print(" (" + t.getToken() + ") " + t.getWord());
         }
     }
 
