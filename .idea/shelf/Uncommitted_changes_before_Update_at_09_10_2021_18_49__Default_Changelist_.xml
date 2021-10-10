@@ -1,0 +1,14 @@
+<changelist name="Uncommitted_changes_before_Update_at_09_10_2021_18_49_[Default_Changelist]" date="1633794565390" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2021_18_49_[Default_Changelist]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 09.10.2021 18:49 [Default Changelist]" />
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/gitTLP/com/company/parsers/PythonLexicalParser.class" />
+    <option name="AFTER_PATH" value="out/production/gitTLP/com/company/parsers/PythonLexicalParser.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2021_18_49_[Default_Changelist]/PythonLexicalParser.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="out/production/gitTLP/com/company/Main.class" />
+    <option name="AFTER_PATH" value="out/production/gitTLP/com/company/Main.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2021_18_49_[Default_Changelist]/Main.class" />
+  </binary>
+</changelist>

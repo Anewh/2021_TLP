@@ -1,6 +1,7 @@
 package com.company;
 
 import com.company.parsers.PythonLexicalParser;
+import com.company.parsers.Token;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -15,8 +16,8 @@ public class Main {
 
         PythonLexicalParser parser = new PythonLexicalParser();
         pythonCode = parser.deleteComments(pythonCode);
-        for(String p : pythonCode){
-            System.out.println(p);
+        for(Token t : parser.lexicalAnalyzer(pythonCode)){
+            System.out.println(t.getToken() + " " + t.getWord() + " ");
         }
     }
 

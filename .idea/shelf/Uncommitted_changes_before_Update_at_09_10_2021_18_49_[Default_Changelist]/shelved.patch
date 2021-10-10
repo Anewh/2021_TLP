@@ -1,0 +1,274 @@
+Index: src/com/company/parsers/PythonLexicalParser.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.company.parsers;\r\n\r\nimport java.util.*;\r\n\r\npublic class PythonLexicalParser {\r\n    private static final Set<String> KEYWORDS =\r\n            Set.of(\"as\", \"assert\", \"break\", \"class\", \"continue\", \"def\", \"del\", \"elif\", \"else\", \"except\", \"finally\", \"for\", \"from\", \"if\", \"import\", \"lambda\", \"pass\", \"print\", \"return\", \"try\", \"while\", \"with\");\r\n\r\n    private static final Set<String> KEYWORD_OPERATORS =\r\n            Set.of(\"and\", \"or\", \"not\", \"is\", \"in\");\r\n\r\n    // Keyword literals\r\n    private static final String FALSE = \"False\";\r\n    private static final String TRUE = \"True\";\r\n    private static final String NONE = \"None\";\r\n\r\n    private static final Set<String> OPERATORS =\r\n            Set.of(\".\", \"+\", \"-\", \"*\", \"/\", \"%\", \"**\", \"//\", \":\", \"=\", \"+=\", \"-=\", \"*=\", \"/=\", \"%=\", \"//=\", \"**=\", \"&=\", \"|=\", \"^=\", \">>=\", \"<<=\", \"==\", \"!=\", \">\", \"<\", \">=\", \"<=\", \"& \", \"|\", \"^\", \"\\\\\", \"~\", \"<<\", \">>\", \"(\", \")\", \"[\", \"]\", \"{\", \"}\");\r\n\r\n    private static final Set<String> STRING_PREFIXES =\r\n            Set.of(\"r\", \"u\", \"R\", \"U\", \"f\", \"F\", \"fr\", \"Fr\", \"fR\", \"FR\", \"rf\", \"rF\", \"Rf\", \"RF\", \"b\", \"B\", \"br\", \"Br\", \"bR\", \"BR\", \"rb\", \"rB\", \"Rb\", \"RB\");\r\n\r\n\r\n    public static List<String> deleteComments(List<String> pythonCode){\r\n        List<String> result = new ArrayList<>();\r\n\r\n        for(String p : pythonCode){\r\n            //удаление однострочных комментариев\r\n            if(p.indexOf('#')!=-1){\r\n                StringBuilder stringBuilder = new StringBuilder(p);\r\n                String substring = \" \";\r\n                int index = p.indexOf('#');\r\n                while(index != stringBuilder.length() - p.indexOf('#')){\r\n                    stringBuilder.setCharAt(index++, ' ');\r\n                }\r\n                p = stringBuilder.toString();\r\n            }\r\n            result.add(p);\r\n\r\n            //исключение docstring?\r\n            //Boolean isCurrentComment = false;\r\n\r\n        }\r\n        return result;\r\n    }\r\n\r\n    public static List<String> lexicalAnalyzer(List<String> pythonCode){\r\n        ArrayList<String> buffer = new ArrayList<>();\r\n\r\n        for(String p : pythonCode){\r\n            char[] charArray = p.toCharArray();\r\n\r\n            //b = p.split(\" \");\r\n            //for(String k : b){\r\n            //\r\n            //}\r\n        }\r\n        return pythonCode;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/com/company/parsers/PythonLexicalParser.java	(revision 56eaef713cee2c2d074207738c63fa78b28f1ce4)
++++ src/com/company/parsers/PythonLexicalParser.java	(date 1633194535232)
+@@ -1,31 +1,31 @@
+ package com.company.parsers;
+ 
++import java.lang.reflect.Array;
+ import java.util.*;
+ 
+ public class PythonLexicalParser {
+     private static final Set<String> KEYWORDS =
+-            Set.of("as", "assert", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "if", "import", "lambda", "pass", "print", "return", "try", "while", "with");
++            Set.of("as", "assert", "break", "class", "range", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "if", "import", "lambda", "pass", "print", "return", "try", "while", "with");
+ 
+     private static final Set<String> KEYWORD_OPERATORS =
+             Set.of("and", "or", "not", "is", "in");
+ 
+-    // Keyword literals
+-    private static final String FALSE = "False";
+-    private static final String TRUE = "True";
+-    private static final String NONE = "None";
++    private static final Set<String> BOOLEAN_LITERALS =
++            Set.of("False", "True",  "NONE");
+ 
+     private static final Set<String> OPERATORS =
+-            Set.of(".", "+", "-", "*", "/", "%", "**", "//", ":", "=", "+=", "-=", "*=", "/=", "%=", "//=", "**=", "&=", "|=", "^=", ">>=", "<<=", "==", "!=", ">", "<", ">=", "<=", "& ", "|", "^", "\\", "~", "<<", ">>", "(", ")", "[", "]", "{", "}");
++            Set.of("+", "-", "*", "/", "%", "**", "//", "=", "+=", "-=", "*=", "/=", "%=", "//=", "**=", "&=", "|=", "^=", ">>=", "<<=", "==", "!=", ">", "<", ">=", "<=", "& ", "|", "^", "\\", "~", "<<", ">>");
++    private static final Set<String> DELIMITERS =
++            Set.of(",", ":", ".", ";", "@", "->");
+ 
+     private static final Set<String> STRING_PREFIXES =
+             Set.of("r", "u", "R", "U", "f", "F", "fr", "Fr", "fR", "FR", "rf", "rF", "Rf", "RF", "b", "B", "br", "Br", "bR", "BR", "rb", "rB", "Rb", "RB");
+-
++    public HashMap hm = new HashMap();
+ 
+     public static List<String> deleteComments(List<String> pythonCode){
+         List<String> result = new ArrayList<>();
+ 
+         for(String p : pythonCode){
+-            //удаление однострочных комментариев
+             if(p.indexOf('#')!=-1){
+                 StringBuilder stringBuilder = new StringBuilder(p);
+                 String substring = " ";
+@@ -36,25 +36,100 @@
+                 p = stringBuilder.toString();
+             }
+             result.add(p);
+-
+-            //исключение docstring?
+-            //Boolean isCurrentComment = false;
+-
+         }
+         return result;
+     }
+ 
+-    public static List<String> lexicalAnalyzer(List<String> pythonCode){
+-        ArrayList<String> buffer = new ArrayList<>();
+-
+-        for(String p : pythonCode){
+-            char[] charArray = p.toCharArray();
++    public String lexicalAnalyzer(List<String> pythonCode) {
++        StringBuilder buffer = new StringBuilder();
++        for (String p : pythonCode) {
++            p.replaceAll("\n", " ");
++            p.replaceAll("\t", " ");
++            buffer.append(p);
++        }
++        String[] wtf = buffer.toString().split(" ");
++        StringBuilder parses = new StringBuilder();
++
++        for (String p : wtf) {
++            char[] charBuffer = p.toCharArray();
++            for(int i=0; i<charBuffer.length;i++){
++                if(Character.isLetter(charBuffer[i])){
++
++                }
++            }
++        }
++//            for (int i = 0; i < charBuffer.length; i++) {
++//
++//                if(Character.isLetter(charBuffer[i])){
++//                    parses.append(charBuffer[i]);
++//                    continue;
++//                } else putInTable(parses);
++//
++//
++//                parses.setLength(0);
++                //if (OPERATORS.contains(charBuffer[i])) hm.put(charBuffer[i], "OPERATOR");
+ 
+-            //b = p.split(" ");
+-            //for(String k : b){
+-            //
+-            //}
++//                if (Character.isDigit(charBuffer[i])) {
++//                    if (p.matches("[0-9]+")) {//p.matches(".*\\d+.*")){
++//                        hm.put(parses, "NUMBER_LITERAL");
++//                    } else hm.put(parses, "UNDEFINED");
++//                    parses.setLength(0);
++//                }
++//
++//                while(Character.isLetter(charBuffer[i])){
++//                    parses.append(charBuffer);
++//                    i++;
++//                }
++//
++//                putInTable(parses);
++//                parses.setLength(0);
++
++//
++//                if (OPERATORS.contains(parses))
++//                    hm.put(parses, "OPERATOR");
++//                else if (DELIMITERS.contains(parses))
++//                    hm.put(parses, "DELIMITER");
++//            }
++//        }
++        String endResult = hm.toString();
++        return endResult;
++    }
++
++    private void findVar(char[] shit){
++        int i = 0;
++        while(Character.isLetter(shit[i])){
++
+         }
+-        return pythonCode;
+     }
++
++    private void putInTable(StringBuilder par){
++        String parses = par.toString();
++        if (KEYWORDS.contains(parses)) {
++            hm.put(parses, "KEYWORD");
++        } else if (KEYWORD_OPERATORS.contains(parses)) {
++            hm.put(parses, "KEYWORD_OPERATOR");
++        } else if (BOOLEAN_LITERALS.contains(parses)) {
++            hm.put(parses, "BOOLEAN_LITERAL");
++        } else if (OPERATORS.contains(parses)) {
++            hm.put(parses, "OPERATOR");
++        } else if (DELIMITERS.contains(parses)) {
++            hm.put(parses, "DELIMITER");
++        } else if (parses.matches("[0-9]+")) {
++            hm.put(parses, "NUMBER_LITERAL");
++        } else {
++            if(parses.matches(".*\\d+.*")) hm.put(parses, "ID");
++        }
++    }
++
+ }
++
++//    NAME("NAM"),
++//    KEYWORD("KWD"),
++//    DELIMITER("DLM"),
++//    OPERATOR("OPR"),
++//    STRING_LITERAL("STL"),
++//    NUMBER_LITERAL("NUL"),
++//    BOOLEAN_LITERAL("BOL"),
++//    NONE_LITERAL("NOL"),
++//    NEW_LINE("NLN"),
++//    UNKNOWN("UNK");
+Index: src/resources/example.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Создание списка,\r\n# его сортировка по возрастанию\r\n# и вывод на экран\r\na = []\r\nval = 1\r\n\r\nfor i in range(10):\r\n    a.append(val+i)\r\nprint(a)\r\n \r\n# искомое число\r\nvalue = int(input())\r\n \r\nmid = len(a) // 2\r\nlow = 0\r\nhigh = len(a) - 1\r\n\r\nwhile a[mid] != value and low <= high:\r\n    if value > a[mid]:\r\n        low = mid + 1\r\n    else:\r\n        high = mid - 1\r\n    mid = (low + high) // 2\r\n \r\nif low > high:\r\n    print(\"No value\")\r\nelse:\r\n    print(\"ID =\", mid)\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/resources/example.txt	(revision 56eaef713cee2c2d074207738c63fa78b28f1ce4)
++++ src/resources/example.txt	(date 1633193230647)
+@@ -1,29 +1,2 @@
+-# Создание списка,
+-# его сортировка по возрастанию
+-# и вывод на экран
+ a = []
+ val = 1
+-
+-for i in range(10):
+-    a.append(val+i)
+-print(a)
+- 
+-# искомое число
+-value = int(input())
+- 
+-mid = len(a) // 2
+-low = 0
+-high = len(a) - 1
+-
+-while a[mid] != value and low <= high:
+-    if value > a[mid]:
+-        low = mid + 1
+-    else:
+-        high = mid - 1
+-    mid = (low + high) // 2
+- 
+-if low > high:
+-    print("No value")
+-else:
+-    print("ID =", mid)
+-
+Index: src/com/company/Main.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.company;\r\n\r\nimport com.company.parsers.PythonLexicalParser;\r\n\r\nimport java.io.BufferedReader;\r\nimport java.io.FileReader;\r\nimport java.io.IOException;\r\nimport java.util.List;\r\nimport java.util.Vector;\r\n\r\npublic class Main {\r\n    public static void main(String[] args) {\r\n        final String path = \"src\\\\resources\\\\example.txt\";\r\n        List<String> pythonCode = readFile(path);\r\n\r\n        PythonLexicalParser parser = new PythonLexicalParser();\r\n        pythonCode = parser.deleteComments(pythonCode);\r\n        for(String p : pythonCode){\r\n            System.out.println(p);\r\n        }\r\n    }\r\n\r\n    public static List<String> readFile(String path){\r\n        List<String> pyCode = new Vector<String>();\r\n        try(FileReader reader = new FileReader(path)) {\r\n            BufferedReader bufferedReader = new BufferedReader(reader);\r\n            String line = null;\r\n            while((line = bufferedReader.readLine()) != null ) {\r\n                pyCode.add(line);\r\n            }\r\n        }\r\n        catch(IOException ex){\r\n            System.out.println(ex.getMessage());\r\n        }\r\n        return pyCode;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/com/company/Main.java	(revision 56eaef713cee2c2d074207738c63fa78b28f1ce4)
++++ src/com/company/Main.java	(date 1633193156087)
+@@ -15,6 +15,7 @@
+ 
+         PythonLexicalParser parser = new PythonLexicalParser();
+         pythonCode = parser.deleteComments(pythonCode);
++        //System.out.println(parser.lexicalAnalyzer(pythonCode));
+         for(String p : pythonCode){
+             System.out.println(p);
+         }
+Index: gitTLP.iml
+===================================================================
+--- gitTLP.iml	(revision 56eaef713cee2c2d074207738c63fa78b28f1ce4)
++++ gitTLP.iml	(revision 56eaef713cee2c2d074207738c63fa78b28f1ce4)
+@@ -1,12 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<module type="JAVA_MODULE" version="4">
+-  <component name="NewModuleRootManager" inherit-compiler-output="true">
+-    <exclude-output />
+-    <content url="file://$MODULE_DIR$">
+-      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+-    </content>
+-    <orderEntry type="inheritedJdk" />
+-    <orderEntry type="sourceFolder" forTests="false" />
+-  </component>
+-</module>
+-
+Index: out/production/gitTLP/resources/example.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Создание списка,\r\n# его сортировка по возрастанию\r\n# и вывод на экран\r\na = []\r\nval = 1\r\n\r\nfor i in range(10):\r\n    a.append(val+i)\r\nprint(a)\r\n \r\n# искомое число\r\nvalue = int(input())\r\n \r\nmid = len(a) // 2\r\nlow = 0\r\nhigh = len(a) - 1\r\n\r\nwhile a[mid] != value and low <= high:\r\n    if value > a[mid]:\r\n        low = mid + 1\r\n    else:\r\n        high = mid - 1\r\n    mid = (low + high) // 2\r\n \r\nif low > high:\r\n    print(\"No value\")\r\nelse:\r\n    print(\"ID =\", mid)\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- out/production/gitTLP/resources/example.txt	(revision 56eaef713cee2c2d074207738c63fa78b28f1ce4)
++++ out/production/gitTLP/resources/example.txt	(date 1633193135728)
+@@ -1,27 +1,19 @@
+-# Создание списка,
+-# его сортировка по возрастанию
+-# и вывод на экран
+ a = []
+ val = 1
+-
+ for i in range(10):
+     a.append(val+i)
+ print(a)
+- 
+ # искомое число
+ value = int(input())
+- 
+ mid = len(a) // 2
+ low = 0
+ high = len(a) - 1
+-
+ while a[mid] != value and low <= high:
+     if value > a[mid]:
+         low = mid + 1
+     else:
+         high = mid - 1
+     mid = (low + high) // 2
+- 
+ if low > high:
+     print("No value")
+ else:
